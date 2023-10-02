@@ -1,0 +1,29 @@
+boot.o: boot.S multiboot.h x86_desc.h types.h
+enablePaging.o: enablePaging.S
+interrupt_linkage.o: interrupt_linkage.S
+syscall_linkage.o: syscall_linkage.S
+x86_desc.o: x86_desc.S x86_desc.h types.h
+file_system.o: file_system.c file_system.h types.h lib.h keyboard.h \
+  i8259.h syscalls.h x86_desc.h paging.h rtc.h
+i8259.o: i8259.c i8259.h types.h lib.h keyboard.h syscalls.h \
+  file_system.h x86_desc.h paging.h rtc.h
+idt.o: idt.c idt.h x86_desc.h types.h interrupt_linkage.h \
+  syscall_linkage.h rtc.h lib.h keyboard.h i8259.h syscalls.h \
+  file_system.h paging.h
+kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h keyboard.h \
+  i8259.h syscalls.h file_system.h paging.h rtc.h debug.h tests.h idt.h \
+  interrupt_linkage.h syscall_linkage.h pit.h
+keyboard.o: keyboard.c keyboard.h types.h i8259.h lib.h syscalls.h \
+  file_system.h x86_desc.h paging.h rtc.h
+lib.o: lib.c lib.h types.h keyboard.h i8259.h syscalls.h file_system.h \
+  x86_desc.h paging.h rtc.h
+paging.o: paging.c paging.h types.h
+pit.o: pit.c pit.h types.h idt.h x86_desc.h interrupt_linkage.h \
+  syscall_linkage.h rtc.h lib.h keyboard.h i8259.h syscalls.h \
+  file_system.h paging.h
+rtc.o: rtc.c rtc.h types.h lib.h keyboard.h i8259.h syscalls.h \
+  file_system.h x86_desc.h paging.h
+syscalls.o: syscalls.c syscalls.h types.h file_system.h lib.h keyboard.h \
+  i8259.h x86_desc.h paging.h rtc.h
+tests.o: tests.c tests.h x86_desc.h types.h lib.h keyboard.h i8259.h \
+  syscalls.h file_system.h paging.h rtc.h

@@ -1,0 +1,86 @@
+CP1:
+
+Bug: Segfault when attempting to access %cr0
+Solution: Was incorrectly setting up pagingDirectory, needed to use present=0 flag on 
+directory entries to simplify process.
+
+Bug: Paging bootloop
+Solution: Caused by not setting the correct flags (PE, PG and 4MB mode) in the registers
+specified by OSDev.org. After setting the flags correctly info_mem outputs the proper hex.
+
+Bug: rtc crashes with keyboard
+Solution: Needed to add cli and sti to keyboard_handler
+
+CP2:
+
+Bug: TAB only deletes one space instead of all 4 spaces
+Solution: Wasn't updating the LINE_BUFFER properly, fixed by using putc only once instead of 4 times for the buffer
+
+Bug: Scrolling wasn't moving everything up properly
+Solution: I wasn't removing the last line properly and I was starting the index from row 0 instead of row 1. Threw a page fault because
+    there wasn't a row before row 0 to copy into.
+
+Bug: Backspace was removing the wrong letter from video mem_
+Solution: wasn't accessing the correct entry in video memory, just needed to make it clear in my mind what space in video mem_
+    we needed to access at any time.
+    
+Bug: read_data copying null data no matter the file
+Solution: Put "()" around the base_addrs in fs_init, don't know why this fixed it but it did
+
+Bug: Smiley face being printed at the end of verylong.txt's file name
+Solution: Print the file_name char by char, so as to not print any extra garabge that exists past
+the filename.
+
+CP3:
+
+Bug: IRET general protection fault!
+Solution: My inline assembly syntax was wrong
+
+Bug: Garbage data being read in the file name and command
+Solution: Wasn't clearing the buffer i used to parse the command file_name so it had garbage data
+
+Bug: ls runs once correctly, cannot run again
+Solution: In dir_read() the local "dentry" was a shallow copy of the (theorteically const) dentry_ptr
+that describes the file system. After one call of dir_read(), we were overwriting the members of the dentry_ptr, preventing future
+use of that pointer to access the file system.
+
+CP4:
+
+Bug: Page fault/no visible fish when running fish
+Solution: Was setting the directrory index to wrong value, also screen address
+
+Bugs: fish only printing one char and blinking char & grep frame0/1.txt not working
+Solution: In read_data, the input check "if(offset > length) return;" was a fundmanetally
+flawed line, but only reared its ugly head during the execution of fish. After removal, fish worked great
+
+Bug: grep not working more than once
+Solution: See fix for CP3 ls bug, but this time in the open() system call
+
+Bug: Cat infinite loop:
+Not passing args to read_data correctly (passing generic ints and stuff), resulting in never incrementing
+file position and never reading the file. Added proper fxn calls in f_read fixed this bug. 
+
+Bug: cat printing extra whitespace after printing fish files
+Solution: in  read_data/file_read, not checking for the end of file correctly. 
+This meant that the program was reading an extra KB of nothing and outputting it.
+
+CP5:
+
+Bug: Fish was persisting in all 3 terminals, regardless of switch
+Solution: Needed to update vidmap page in switch_vmem_paging() function, and remove the old calls
+in the vidmap function. Otherwise vidmap() was writing to video memory regardless of its spot
+int the schedule
+
+Bug: Wrong return values in execute was leading to strange error messages printed to console 
+Solution: Looking over what return value was in each execute section
+
+Bug: Interrupts disabled after execute
+Solution: Reenabling interrupts at the end of executes context switch by popping the flags off the stack and setting the IF bit
+
+Bug: Switching terminals wasn't update the video memory properly
+Solution: Dumb fix but I was editing the pageDirectory[0xb8] instead of pageTable[0xb8]
+
+Bug: Couldn't run more than one program or it would break
+Solution: Halt syscall wasn't written properly so after the first program would finish, the enter_flag and buffer weren't being updated
+correctly. The processes also weren't returning to the correct parent process. Adding the multiple terminal support and 
+fixing the parent process bug fixed it
